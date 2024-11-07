@@ -4,19 +4,18 @@ import cors from "cors";
 const app = express();
 const PORT = 3000;
 
-app.use(cors()); // Permitir CORS para facilitar a comunicação com o frontend
-app.use(express.json()); // Middleware para interpretar JSON
+app.use(cors()); 
+app.use(express.json()); 
 
 // Rota principal
 app.get("/", (req: Request, res: Response) => {
   res.send("Olá, Servidor rodando com Node.js");
 });
 
-// Interface do item, agora com completed
 interface Item {
-  uid: number; // Agora usamos uma string para ID (uuid)
+  uid: number; 
   task: string;
-  completed: boolean; // Campo completed
+  completed: boolean; 
 }
 
 let itens: Item[] = [];
@@ -31,7 +30,7 @@ app.post("/itens", (req: Request, res: Response) => {
     return res.status(400).json({ error: "O campo 'task' é obrigatório" });
   }
 
-  const novoItem: Item = { uid: Number(contadorId++), task, completed }; // Usando o contador
+  const novoItem: Item = { uid: Number(contadorId++), task, completed }; 
   itens.push(novoItem);
   res.status(201).json(novoItem);
 });
@@ -44,7 +43,7 @@ app.get("/itens", (req: Request, res: Response) => {
 // Rota de atualização (Update)
 app.put("/itens/:id", (req: Request, res: Response) => {
   const { id } = req.params;
-  const { task, completed } = req.body; // Agora também podemos alterar 'completed'
+  const { task, completed } = req.body;
 
   if (!task || task.trim() === "") {
     return res.status(400).json({ error: "O campo 'task' é obrigatório" });
@@ -53,7 +52,7 @@ app.put("/itens/:id", (req: Request, res: Response) => {
   const item = itens.find((i) => i.uid === Number(id));
   if (item) {
     item.task = task;
-    item.completed = completed !== undefined ? completed : item.completed; // Atualiza 'completed' se fornecido
+    item.completed = completed !== undefined ? completed : item.completed; 
     res.json(item);
   } else {
     res.status(404).json({ error: "Item não encontrado" });
