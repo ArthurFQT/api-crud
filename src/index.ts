@@ -15,8 +15,9 @@ app.get("/", (req: Request, res: Response) => {
 
 // Interface do item
 interface Item {
-  id: number; // Agora usamos uma string para ID (uuid)
+  id: string; // Agora usamos uma string para ID (uuid)
   task: string;
+  uid: string;
 }
 
 let itens: Item[] = [];
@@ -29,7 +30,7 @@ app.post("/itens", (req: Request, res: Response) => {
     return res.status(400).json({ error: "O campo 'task' é obrigatório" });
   }
 
-  const novoItem: Item = { id: task.length + 1, task };
+  const novoItem: Item = { id: task.length + 1, task, uid: uuidv4() };
   itens.push(novoItem);
   res.status(201).json(novoItem);
 });
