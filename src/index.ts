@@ -13,23 +13,24 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Olá, Servidor rodando com Node.js");
 });
 
-// Interface do item
+// Interface do item, agora com completed
 interface Item {
   uid: string; // Agora usamos uma string para ID (uuid)
   task: string;
+  completed: boolean; // Campo completed
 }
 
 let itens: Item[] = [];
 
 // Rota de criação (Create)
 app.post("/itens", (req: Request, res: Response) => {
-  const { task } = req.body;
+  const { task, completed = false } = req.body; // Campo completed com valor padrão
 
   if (!task || task.trim() === "") {
     return res.status(400).json({ error: "O campo 'task' é obrigatório" });
   }
 
-  const novoItem: Item = { uid: uuidv4(), task };
+  const novoItem: Item = { uid: uuidv4(), task, completed };
   itens.push(novoItem);
   res.status(201).json(novoItem);
 });
@@ -42,7 +43,7 @@ app.get("/itens", (req: Request, res: Response) => {
 // Rota de atualização (Update)
 app.put("/itens/:id", (req: Request, res: Response) => {
   const { id } = req.params;
-  const { task } = req.body;
+  const { task, completed } = req.body; // Agora também podemos alterar 'completed'
 
   if (!task || task.trim() === "") {
     return res.status(400).json({ error: "O campo 'task' é obrigatório" });
@@ -51,6 +52,7 @@ app.put("/itens/:id", (req: Request, res: Response) => {
   const item = itens.find((i) => i.uid === id);
   if (item) {
     item.task = task;
+    item.completed = completed !== undefined ? completed : item.completed; // Atualiza 'completed' se fornecido
     res.json(item);
   } else {
     res.status(404).json({ error: "Item não encontrado" });
@@ -74,4 +76,3 @@ app.delete("/itens/:id", (req: Request, res: Response) => {
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
-  
