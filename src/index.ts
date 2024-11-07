@@ -5,22 +5,18 @@ import { v4 as uuidv4 } from "uuid";
 const app = express();
 const PORT = 3000;
 
-app.use(cors()); // Permitir CORS para facilitar a comunicação com o frontend
-app.use(express.json()); // Middleware para interpretar JSON
-
-// Rota principal
-app.get("/", (req: Request, res: Response) => {
-  res.send("Olá, Servidor rodando com Node.js");
-});
+app.use(cors());
+app.use(express.json());
 
 // Interface do item
 interface Item {
-  id: string; // Agora usamos uma string para ID (uuid)
+  id: number; // ID sequencial
   task: string;
   uid: string;
 }
 
 let itens: Item[] = [];
+let nextId = 1; // Variável para armazenar o próximo ID disponível
 
 // Rota de criação (Create)
 app.post("/itens", (req: Request, res: Response) => {
@@ -30,7 +26,7 @@ app.post("/itens", (req: Request, res: Response) => {
     return res.status(400).json({ error: "O campo 'task' é obrigatório" });
   }
 
-  const novoItem: Item = { id: task.length + 1, task, uid: uuidv4() };
+  const novoItem: Item = { id: nextId++, task, uid: uuidv4() }; // Atribui o próximo ID e incrementa
   itens.push(novoItem);
   res.status(201).json(novoItem);
 });
@@ -42,7 +38,7 @@ app.get("/itens", (req: Request, res: Response) => {
 
 // Rota de atualização (Update)
 app.put("/itens/:id", (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = parseInt(req.params.id);
   const { task } = req.body;
 
   if (!task || task.trim() === "") {
@@ -60,7 +56,7 @@ app.put("/itens/:id", (req: Request, res: Response) => {
 
 // Rota de exclusão (Delete)
 app.delete("/itens/:id", (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = parseInt(req.params.id);
   const index = itens.findIndex((i) => i.id === id);
 
   if (index !== -1) {
@@ -75,4 +71,3 @@ app.delete("/itens/:id", (req: Request, res: Response) => {
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
-  
