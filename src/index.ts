@@ -15,7 +15,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // Interface do item
 interface Item {
-  id: string; // Agora usamos uma string para ID (uuid)
+  uid: string; // Agora usamos uma string para ID (uuid)
   task: string;
 }
 
@@ -29,7 +29,7 @@ app.post("/itens", (req: Request, res: Response) => {
     return res.status(400).json({ error: "O campo 'task' é obrigatório" });
   }
 
-  const novoItem: Item = { id: uuidv4(), task };
+  const novoItem: Item = { uid: uuidv4(), task };
   itens.push(novoItem);
   res.status(201).json(novoItem);
 });
@@ -48,7 +48,7 @@ app.put("/itens/:id", (req: Request, res: Response) => {
     return res.status(400).json({ error: "O campo 'task' é obrigatório" });
   }
 
-  const item = itens.find((i) => i.id === id);
+  const item = itens.find((i) => i.uid === id);
   if (item) {
     item.task = task;
     res.json(item);
@@ -60,7 +60,7 @@ app.put("/itens/:id", (req: Request, res: Response) => {
 // Rota de exclusão (Delete)
 app.delete("/itens/:id", (req: Request, res: Response) => {
   const { id } = req.params;
-  const index = itens.findIndex((i) => i.id === id);
+  const index = itens.findIndex((i) => i.uid === id);
 
   if (index !== -1) {
     const itemRemovido = itens.splice(index, 1);
