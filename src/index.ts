@@ -22,15 +22,17 @@ interface Item {
 
 let itens: Item[] = [];
 
+let contadorId = 1;
+
 // Rota de criação (Create)
 app.post("/itens", (req: Request, res: Response) => {
-  const { task, completed = false } = req.body; // Campo completed com valor padrão
+  const { task, completed = false } = req.body;
 
   if (!task || task.trim() === "") {
     return res.status(400).json({ error: "O campo 'task' é obrigatório" });
   }
 
-  const novoItem: Item = { uid: uuidv4(), task, completed };
+  const novoItem: Item = { uid: String(contadorId++), task, completed }; // Usando o contador
   itens.push(novoItem);
   res.status(201).json(novoItem);
 });
