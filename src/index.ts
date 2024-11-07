@@ -1,9 +1,12 @@
 import express, { Request, Response } from "express";
+import cors from "cors";
+import { v4 as uuidv4 } from "uuid";
+
 const app = express();
 const PORT = 3000;
 
-// Middleware para interpretar JSON
-app.use(express.json());
+app.use(cors()); // Permitir CORS para facilitar a comunicação com o frontend
+app.use(express.json()); // Middleware para interpretar JSON
 
 // Rota principal
 app.get("/", (req: Request, res: Response) => {
@@ -12,7 +15,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // Interface do item
 interface Item {
-  id: number;
+  id: string; // Agora usamos uma string para ID (uuid)
   task: string;
 }
 
@@ -22,12 +25,11 @@ let itens: Item[] = [];
 app.post("/itens", (req: Request, res: Response) => {
   const { task } = req.body;
 
-  // Validação simples para garantir que o campo 'task' foi enviado
   if (!task || task.trim() === "") {
     return res.status(400).json({ error: "O campo 'task' é obrigatório" });
   }
 
-  const novoItem: Item = { id: new Date().getTime(), task };
+  const novoItem: Item = { id: uuidv4(), task };
   itens.push(novoItem);
   res.status(201).json(novoItem);
 });
@@ -42,12 +44,11 @@ app.put("/itens/:id", (req: Request, res: Response) => {
   const { id } = req.params;
   const { task } = req.body;
 
-  // Validação para garantir que 'task' não está vazio
   if (!task || task.trim() === "") {
     return res.status(400).json({ error: "O campo 'task' é obrigatório" });
   }
 
-  const item = itens.find((i) => i.id === parseInt(id));
+  const item = itens.find((i) => i.id === id);
   if (item) {
     item.task = task;
     res.json(item);
@@ -59,7 +60,7 @@ app.put("/itens/:id", (req: Request, res: Response) => {
 // Rota de exclusão (Delete)
 app.delete("/itens/:id", (req: Request, res: Response) => {
   const { id } = req.params;
-  const index = itens.findIndex((i) => i.id === parseInt(id));
+  const index = itens.findIndex((i) => i.id === id);
 
   if (index !== -1) {
     const itemRemovido = itens.splice(index, 1);
@@ -73,3 +74,4 @@ app.delete("/itens/:id", (req: Request, res: Response) => {
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
+  
