@@ -13,15 +13,21 @@ app.get("/", (req: Request, res: Response) => {
 // Interface do item
 interface Item {
   id: number;
-  task: string;  // Alterado para 'task' ao invés de 'nome'
+  task: string;
 }
 
 let itens: Item[] = [];
 
 // Rota de criação (Create)
 app.post("/itens", (req: Request, res: Response) => {
-  const { task } = req.body;  // Alterado para 'task'
-  const novoItem: Item = { id: itens.length + 1, task };  // Alterado para 'task'
+  const { task } = req.body;
+
+  // Validação simples para garantir que o campo 'task' foi enviado
+  if (!task || task.trim() === "") {
+    return res.status(400).json({ error: "O campo 'task' é obrigatório" });
+  }
+
+  const novoItem: Item = { id: new Date().getTime(), task };
   itens.push(novoItem);
   res.status(201).json(novoItem);
 });
@@ -34,10 +40,16 @@ app.get("/itens", (req: Request, res: Response) => {
 // Rota de atualização (Update)
 app.put("/itens/:id", (req: Request, res: Response) => {
   const { id } = req.params;
-  const { task } = req.body;  // Alterado para 'task'
-  const item = itens.find((i) => i.id == parseInt(id));
+  const { task } = req.body;
+
+  // Validação para garantir que 'task' não está vazio
+  if (!task || task.trim() === "") {
+    return res.status(400).json({ error: "O campo 'task' é obrigatório" });
+  }
+
+  const item = itens.find((i) => i.id === parseInt(id));
   if (item) {
-    item.task = task;  // Alterado para 'task'
+    item.task = task;
     res.json(item);
   } else {
     res.status(404).json({ error: "Item não encontrado" });
@@ -47,10 +59,11 @@ app.put("/itens/:id", (req: Request, res: Response) => {
 // Rota de exclusão (Delete)
 app.delete("/itens/:id", (req: Request, res: Response) => {
   const { id } = req.params;
-  const index = itens.findIndex((i) => i.id == parseInt(id));
+  const index = itens.findIndex((i) => i.id === parseInt(id));
+
   if (index !== -1) {
     const itemRemovido = itens.splice(index, 1);
-    res.json(itemRemovido);
+    res.status(200).json({ message: "Item removido com sucesso", item: itemRemovido });
   } else {
     res.status(404).json({ error: "Item não encontrado" });
   }
